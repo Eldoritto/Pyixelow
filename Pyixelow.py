@@ -1,6 +1,5 @@
+import tensorflow as tf
 from tensorflow import keras
-from PIL import Image
-import io
 
 
 def loadModel(model_directory):
@@ -9,13 +8,12 @@ def loadModel(model_directory):
 
 def predictImage(image_directory, model_directory):
     image_size = (180, 180)
-    img = Image.open(io.BytesIO(image_directory))
-    img = img.convert('RGB')
-    img = img.resize(image_size, Image.NEAREST)
-    img = Image.img_to_array(img)
-    predictions = loadModel(model_directory).predict(img)
+    img = keras.preprocessing.image.load_img(image_directory, target_size=image_size)
+    img_array = keras.preprocessing.image.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)
+    predictions = loadModel(model_directory).predict(img_array)
     score = predictions[0]
     dogPercentage = float(100 * (1 - score))
     catPercentage = float(100 * score)
-
+    print(catPercentage)
     return catPercentage > dogPercentage
